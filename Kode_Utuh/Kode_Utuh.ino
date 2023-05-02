@@ -10,7 +10,11 @@ const int relaybasa = 27;
 float ph;
 float Value=0;
 float sisaair;
+float sisaAsam;
+float sisaBasa;
 int tinggikolam;
+int tinggiAsam;
+int tinggiBasa;
 int luas;
 int volume;
 float xbasa[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -75,6 +79,8 @@ Card Asam(&dashboard, HUMIDITY_CARD, "Sisa Larutan Asam", "%");
 Card Basa(&dashboard, HUMIDITY_CARD, "Sisa Larutan Basa", "%");
 Card pHCard(&dashboard, GENERIC_CARD, "pH Kolam");
 Card Tinggi(&dashboard, SLIDER_CARD, "Tinggi Kolam", "(m)", 1, 4);
+Card tAsam(&dashboard, SLIDER_CARD, "Tinggi Wadah Larutan Asam", "(cm)", 1, 30);
+Card tBasa(&dashboard, SLIDER_CARD, "Tinggi Wadah Larutan Basa", "(cm)", 1, 30);
 Card Luas(&dashboard, SLIDER_CARD, "Luas Kolam", "(m^2)", 1, 10);
 Chart chartasam(&dashboard, BAR_CHART, "Penggunaan Larutan Asam (l)");
 Chart chartbasa(&dashboard, BAR_CHART, "Penggunaan Larutan Basa (l)");
@@ -107,6 +113,20 @@ void setup() {
     Luas.update(l);
     dashboard.sendUpdates();
   });
+
+  tAsam.attachCallback([&](int ta){
+    Serial.println("[Asam] Slider Callback Triggered: "+String(ta));
+    tinggiAsam = ta;
+    tAsam.update(ta);
+    dashboard.sendUpdates();
+  });
+
+  tBasa.attachCallback([&](int tb){
+    Serial.println("[Basa] Slider Callback Triggered: "+String(tb));
+    tinggiBasa = tb;
+    tBasa.update(tb);
+    dashboard.sendUpdates();
+  });
   
   /* Connect WiFi */
   WiFi.mode(WIFI_STA);
@@ -130,8 +150,8 @@ void loop() {
   digitalWrite (relaybasa, LOW);
   /* Update Card Values */
   Air.update(sisaair);
-  Asam.update(distanceCm1);
-  Basa.update(distanceCm2);
+  Asam.update(sisaAsam);
+  Basa.update(sisaBasa);
   pHCard.update(ph);
   if (ph>7.5){
     chartasam.updateX(Yasam, 30);
@@ -171,7 +191,7 @@ void loop() {
   // Prints the distance in the Serial Monitor
   Serial.print("Distance (cm): ");
   Serial.println(distanceCm); // jarak sensor ke permukaan kolam
-  sisaair = tinggikolam - distanceCm + 100;
+  sisaair = tinggikolam - distanceCm + 50; //+50 akomodasi posisi sensor
   delay(500);
 
 
@@ -192,6 +212,7 @@ void loop() {
   // Prints the distance in the Serial Monitor
   Serial.print("Distance1 (cm): ");
   Serial.println(distanceCm1);  
+  sisaAsam =  ((tinggiAsam - distanceCm1 + 5)*10)/3; // +5 akomodasi posisi sensor
   delay(500);
 
 
@@ -212,6 +233,7 @@ void loop() {
   // Prints the distance in the Serial Monitor
   Serial.print("Distance2 (cm): ");
   Serial.println(distanceCm2);  
+  sisaBasa = ((tinggiBasa - distanceCm2 + 5)*10)/3; //+5 akomodasi posisi sensor
   delay(500);
 
   volume = luas * tinggikolam;
