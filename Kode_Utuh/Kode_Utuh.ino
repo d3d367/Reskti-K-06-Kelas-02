@@ -238,7 +238,7 @@ void loop() {
 
   volume = luas * tinggikolam;
   
-  if (ph > 7.5){
+  if (ph > 7.5 && sisaAsam > 0){
     sumasam = 0;
     Serial.println("Kondisi terlalu basa");
     larasam = -((pow(10,-ph)-pow(10,-7.4))*1000*volume/1.37);
@@ -264,7 +264,7 @@ void loop() {
     delay(100);
     }
 
-  else if (ph < 6.5){
+  else if (ph < 6.5 && sisaBasa > 0){
     sumbasa = 0;
     Serial.println("Kondisi terlalu asam"); 
     larbasa = (pow(10,-ph)-pow(10,-6.6))*1000*volume/1.37;  
